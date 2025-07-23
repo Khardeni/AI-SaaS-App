@@ -5,7 +5,6 @@ const GenerateImages = () => {
   const imageStyle = [ 'Realistic', 'Ghibli style', 'Anime style ', 'Abstract', '3D style', 'Fantasy style','Portrait style', 'Cartoon style' ]
     const [selectedStyle, setSelectedStyle] = React.useState('Realistic'); 
     const [input, setInput] = React.useState('');
-
     const [publish, setPublish] = React.useState(false);
     const onsubmitHandler = async (e) => {
       e.preventDefault();
