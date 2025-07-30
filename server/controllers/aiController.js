@@ -1,11 +1,13 @@
 import OpenAI from "openai";
+import sql from "../configs/db.js";
+import { clerkClient } from "@clerk/express";
 
 const AI = new OpenAI({
     apiKey: process.env.GEMINI_API_KEY,
     baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/"
 });
 
-export default generateArticle = async (req, res) => {
+const generateArticle = async (req, res) => {
     try {
         const { userId } = req.auth();
         const { prompt, length } = req.body;
@@ -29,7 +31,28 @@ export default generateArticle = async (req, res) => {
             temperature: 0.7,
             max_tokens: length,
         });
+
+        const content = response.choices[0].message.content;
+        await sql`INSERT INTO creations (user_id, prompt, content, type) VALUES (${userId},${prompt},${content},'article')`;
+
+        if (plan !== 'premium') {
+            await clerkClient.users.updateUserMetadata(userId, {
+                privateMetadata: {
+                    free_usage: free_usage + 1
+                }
+            });
+        }
+
+        res.json({
+            success: true,
+            message: "Article generated successfully",
+            content: content
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message || 'Failed to generate article' });
+        console.log(error.message);
+        res.json({ success: false, message: error.message || 'Failed to generate article' });
     }
 }
+
+
+export default generateArticle;
