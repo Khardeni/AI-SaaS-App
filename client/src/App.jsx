@@ -17,7 +17,7 @@ const App = () => {
   const { getToken } = useAuth();
   useEffect(() => {
     getToken().then((token) => {
-      console.log("Token retrieved successfully");
+      console.log("Token retrieved successfully", token);
     }).catch((error) => {
       console.error("Error retrieving token:", error);
     }
