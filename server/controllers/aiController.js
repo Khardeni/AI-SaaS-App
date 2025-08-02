@@ -1,6 +1,8 @@
 import OpenAI from "openai";
 import sql from "../configs/db.js";
 import { clerkClient } from "@clerk/express";
+import axios from "axios";
+import { v2 as cloudinary } from 'cloudinary';
 
 const AI = new OpenAI({
     apiKey: process.env.GEMINI_API_KEY,
@@ -55,7 +57,7 @@ export const generateArticle = async (req, res) => {
 }
 
 
-export const gnerateBlogTitle = async (req, res) => {
+export const generateBlogTitle = async (req, res) => {
     try {
         const { userId } = req.auth();
         const { prompt } = req.body;
@@ -95,6 +97,47 @@ export const gnerateBlogTitle = async (req, res) => {
             success: true,
             message: "Article generated successfully",
             content: content
+        });
+    } catch (error) {
+        console.log(error.message);
+        res.json({ success: false, message: error.message || 'Failed to generate article' });
+    }
+}
+
+export const generateImage = async (req, res) => {
+    try {
+        const { userId } = req.auth();
+        const { prompt, publish } = req.body;
+        const plan = req.plan;
+
+
+        if (plan !== 'premium') {
+            return res.json({
+                success: false,
+                message: "this feature is only available for premium users"
+            });
+        }
+
+        const FormData = new FormData()
+        FormData.append('prompt', prompt);
+        const { data } = await axios.post('https://clipdrop-api.co/text-to-image/v1', FormData, {
+            headers: {
+                'x-api-key': process.env.CLIPDROP_API_KEY
+            },
+            responseType: 'arraybuffer',
+
+        })
+        const base64Image = `data:image/png;base64,${Buffer.from(data, 'binary').toString('base64')}`;
+
+        const { secure_url } = await cloudinary.uploader.upload(base64Image)
+
+        await sql` INSERT INTO creations (user_id, prompt, content, type, publish) VALUES (${userId},${prompt},${secure_url},'image',${publish ?? false})`;
+
+
+        res.json({
+            success: true,
+            message: "image generated successfully",
+            content: secure_url
         });
     } catch (error) {
         console.log(error.message);
