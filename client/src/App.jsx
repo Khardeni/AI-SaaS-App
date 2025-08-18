@@ -11,20 +11,12 @@ import RemoveBackground from './pages/RemoveBackground';
 import GenerateImages from './pages/GenerateImages';
 import { useAuth } from '@clerk/clerk-react';
 import { useEffect } from 'react';
+import { Toaster } from 'react-hot-toast';
 
 const App = () => {
-
-  const { getToken } = useAuth();
-  useEffect(() => {
-    getToken().then((token) => {
-      console.log("Token retrieved successfully", token);
-    }).catch((error) => {
-      console.error("Error retrieving token:", error);
-    }
-    );
-  }, []);
   return (
     <div>
+      <Toaster />
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/ai' element={<Layout />}>
