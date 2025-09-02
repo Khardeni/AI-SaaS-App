@@ -120,9 +120,9 @@ export const generateImage = async (req, res) => {
             });
         }
 
-        const FormData = new FormData()
-        FormData.append('prompt', prompt);
-        const { data } = await axios.post('https://clipdrop-api.co/text-to-image/v1', FormData, {
+        const formData = new FormData()
+        formData.append('prompt', prompt);
+        const { data } = await axios.post('https://clipdrop-api.co/text-to-image/v1', formData, {
             headers: {
                 'x-api-key': process.env.CLIPDROP_API_KEY
             },

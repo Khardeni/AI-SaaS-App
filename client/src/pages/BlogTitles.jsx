@@ -19,7 +19,7 @@ const BlogTitles = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const prompt = `Generate 5 catchy blog titles about "${input}" in the category of ${selectedCategory}. Return the titles in a numbered list.`;
+      const prompt = `Generate 5 catchy blog titles about "${input}" in the category of ${selectedCategory}.`;
       const { data } = await axios.post('/api/ai/generate-blog-title', 
         {prompt}, {
         headers: {
